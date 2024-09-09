@@ -13,6 +13,8 @@ from schemas import Buyer, Supplier
 from dotenv import load_dotenv
 import schemas
 import jwt
+from passlib.context import CryptContext
+
 
 
 # def get_buyer_by_email(db: MySQLConnection, contact_email: str):
@@ -94,6 +96,18 @@ async def supplier_login(db: Session, supplier: schemas.SupplierLogin):
         return {"message": "Supplier Login Successful", "token": token}
     else:
         raise HTTPException(status_code=401, detail="Invalid name or password")
+    
+
+
+def get_user_by_username(db: Session, username: str, password:str):
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT * FROM electrictree_db.user_details WHERE username = %s and password =%s"
+    cursor.execute(query, (username,password))
+    user = cursor.fetchone()
+    cursor.close()
+    return user
+
+
 
 
 # module to send verification links on User registered email and validate the token and Integrate Firebase email verification module to send verification email

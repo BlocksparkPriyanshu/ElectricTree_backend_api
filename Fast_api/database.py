@@ -24,7 +24,7 @@ from mysql.connector import pooling
 def get_db():
     try:
         db = mysql.connector.connect(
-        host="192.168.1.14",
+        host="192.168.1.3",
         user="root",
         password="admin",
         database="electrictree_db"

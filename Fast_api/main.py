@@ -9,6 +9,13 @@ from schemas import Buyer, Supplier
 from fastapi import FastAPI, HTTPException, Depends
 import schemas
 from crud import buyer_signup, supplier_signup, verify_email
+import os
+
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import JWTError, jwt
+from datetime import datetime, timedelta, timezone
+from passlib.context import CryptContext
+
 
 app = FastAPI()
 
@@ -333,3 +340,50 @@ async def delete_product_details(delete_details: int, db: Session = Depends(get_
     - **200 OK:** If the stock details are successfully deleted.""")
 async def delete_stock_details(delete_details: int, db: Session = Depends(get_db)):
     return await crud.delete_stock_details(db, delete_details)
+
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta 
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+@app.post("/api/user_login", response_model=schemas.Token,tags=["Login Api for User."], description="""
+
+    This API allows users to log in by providing their username and password. If the provided credentials are valid, an access token is generated that can be used to authenticate future requests.
+
+    **Parameters:**
+    - **form_data (OAuth2PasswordRequestForm):** The credentials for logging in:
+        - `username`: The username of the user.
+        - `password`: The password of the user.
+    -**db (Session):** The database session to use for querying the user.
+
+    **Returns:**
+    - **200 OK:** If the login is successful, returns an access token.
+        - `access_token`: The generated token that can be used for authentication in subsequent requests.
+        - `token_type`: The type of token (usually "bearer").
+        
+    - **401 Unauthorized:** If the username or password is incorrect, raises an HTTP exception with a message indicating the failure.""")
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = crud.get_user_by_username(db=db, username=form_data.username, password=form_data.password)
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
+   
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(data={"sub": user['username']}, expires_delta=access_token_expires)
+    return {"access_token": access_token, "token_type": "bearer"}
+
+

@@ -34,6 +34,20 @@ class SupplierLogin(BaseModel):
     supplier_name: str
     supplier_password: str
 
+class UserBase(BaseModel):
+    username: str
+    email: str
+    status: str
+
+class UserResponse(BaseModel):
+    username: str
+    email: str
+    status: str
+
+
+class User(UserBase):
+    user_id: int
+
 class ProjectCreate(BaseModel):
     project_name: str
     project_description: str
