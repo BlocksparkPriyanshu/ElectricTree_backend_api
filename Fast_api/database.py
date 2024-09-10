@@ -1,25 +1,4 @@
-# database.py
-
 import mysql.connector
-from mysql.connector import pooling
-
-# dbconfig = {
-#     "user": "root",
-#     "password": "admin",
-#     "host": "192.168.1.14",
-#     "database": "electrictree_db",
-# }
-
-# connection_pool = pooling.MySQLConnectionPool(pool_name="mypool", pool_size=5, **dbconfig)
-
-# def get_db():
-#     conn = connection_pool.get_connection()
-#     # try:
-#     #     yield conn
-#     # finally:
-#     #     conn.close()
-#     return dbconfig
-
 
 def get_db():
     try:

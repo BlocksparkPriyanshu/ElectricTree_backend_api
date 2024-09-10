@@ -1,4 +1,3 @@
-# models.py
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
@@ -16,6 +15,10 @@ class Buyer(BaseModel):
     buyer_name: str
     buyer_password: str
     contact_email: EmailStr
+
+class CurrentBuyer(BaseModel):
+    buyer_id: int
+    buyer_name: str
 
 class Supplier(BaseModel):
     supplier_name: str
@@ -44,9 +47,16 @@ class UserResponse(BaseModel):
     email: str
     status: str
 
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
 
 class User(UserBase):
     user_id: int
+    username: str
+    password: str
+    email: str
 
 class ProjectCreate(BaseModel):
     project_name: str

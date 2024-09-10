@@ -1,6 +1,6 @@
 from mysql.connector import MySQLConnection
-from schemas import BuyerCreate
-from schemas import SupplierCreate
+# from schemas import BuyerCreate
+# from schemas import SupplierCreate
 from sqlalchemy.orm import Session
 import os
 import smtplib
@@ -73,11 +73,12 @@ async def buyer_login(db: Session, buyer: schemas.BuyerLogin):
     if buyer:
         buyer_id = buyer[0]  
         token = jwt.encode({'buyer_id': buyer_id}, SECRET_KEY, algorithm='HS256')
-        return {"message": "Buyer Login Successful", "token": token}
+        return {"message": "Buyer Login Successful", "token": token, "buyer_id": buyer[0], "buyer_name": buyer[1], "buyer_password": buyer[2], "contact_email":buyer[3]}
     else:
         raise HTTPException(status_code=401, detail="Invalid name or password")
+
     
-# Login api for a Supplier
+#  Login api for a Supplier
 async def supplier_login(db: Session, supplier: schemas.SupplierLogin):
     supplier_name = supplier.supplier_name
     supplier_password = supplier.supplier_password
@@ -91,21 +92,36 @@ async def supplier_login(db: Session, supplier: schemas.SupplierLogin):
     supplier = cursor.fetchone()
 
     if supplier:
-        supplier_id = supplier[0]  # Assuming the first column is supplier_id
+        supplier_id = supplier[0] 
         token = jwt.encode({'supplier_id': supplier_id}, SECRET_KEY, algorithm='HS256')
-        return {"message": "Supplier Login Successful", "token": token}
+        return {"message": "Supplier Login Successful", "token": token, "supplier_id": supplier[0], "supplier_name": supplier[1], "supplier_password": supplier[2], "contact_email":supplier[3]}
     else:
         raise HTTPException(status_code=401, detail="Invalid name or password")
     
 
+#  Login api for a User
 
-def get_user_by_username(db: Session, username: str, password:str):
-    cursor = db.cursor(dictionary=True)
-    query = "SELECT * FROM electrictree_db.user_details WHERE username = %s and password =%s"
-    cursor.execute(query, (username,password))
+async def user_login(db: Session, user: schemas.UserLogin):
+    username = user.username
+    password = user.password
+
+    if not username or not password:
+        raise HTTPException(status_code=400, detail="Please fill in the required details")
+    
+    cursor = db.cursor()
+    query = """SELECT * FROM electrictree_db.user_details WHERE username = %s and password = %s """
+    cursor.execute(query, (username, password))
     user = cursor.fetchone()
-    cursor.close()
-    return user
+
+    if user:
+        user_id = user[0] 
+        token = jwt.encode({'user_id': user_id}, SECRET_KEY, algorithm='HS256')
+        return {"message": "User Login Successful.", "token": token, "user_id": user[0], "username": user[1], "password": user[2], "email":user[3]}
+    else:
+        raise HTTPException(status_code=401, detail="Invalid name or password")
+
+
+
 
 
 
@@ -282,7 +298,7 @@ async def delete_project_details(db:Session, project_id: int):
 
 # Api for product and stock details
 
-# This api for creating project details. 
+# This api for creating product details. 
 async def create_product_details(db:Session, product:schemas.ProductCreate):
     product_name = product.product_name
     description = product.description

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from database import get_db
-from typing import Optional
+# from typing import Optional
 from sqlalchemy.orm import Session 
 import schemas,crud
 from dotenv import load_dotenv
@@ -9,15 +9,10 @@ from schemas import Buyer, Supplier
 from fastapi import FastAPI, HTTPException, Depends
 import schemas
 from crud import buyer_signup, supplier_signup, verify_email
-import os
-
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import JWTError, jwt
-from datetime import datetime, timedelta, timezone
-from passlib.context import CryptContext
 
 
 app = FastAPI()
+
 
 # @app.post("/api/buyer_signup", status_code=status.HTTP_201_CREATED)
 # def buyer_signup(buyer: BuyerCreate, db: MySQLConnection = Depends(get_db)):
@@ -38,8 +33,9 @@ app = FastAPI()
 #     return JSONResponse(content={"message": "Supplier SignUp Successfully"})
 
 
+# Login api for Buyer.
 
-@app.post("/api/buyer_login",tags=["Login Api For Buyer And Supplier."],description="""
+@app.post("/api/buyer_login",tags=["Login Api For Buyer, Supplier And User."],description="""
     This endpoint allows a buyer to log in by providing their `buyer_name` and `buyer_password`.
     If the credentials are correct, a JWT token is returned which can be used for subsequent authenticated requests.
 
@@ -56,9 +52,9 @@ app = FastAPI()
 async def buyer_login(buyer: schemas.BuyerLogin, db: Session = Depends(get_db)):
     return await crud.buyer_login(db, buyer)
 
-
+# Login api for Supplier.
     
-@app.post("/api/supplier_login",tags=["Login Api For Buyer And Supplier."],description="""
+@app.post("/api/supplier_login",tags=["Login Api For Buyer, Supplier And User."],description="""
     This endpoint allows a supplier to log in by providing their `supplier_name` and `supplier_password`.
     
     **Parameters:**
@@ -150,6 +146,9 @@ async def verify(oobCode: str):
 
 
 
+# Api for project details
+# This api for creating project details. 
+
 @app.post("/api/project_details",tags=["This api for project details."],description="""
     This API allows users to create a new project by providing essential details such as the project name, description, start date, end date, and status.
 
@@ -170,7 +169,7 @@ async def verify(oobCode: str):
 async def create_project_details(project: schemas.ProjectCreate, db: Session = Depends(get_db)):
     return await crud.create_project_details(db,project)
 
-
+# This api for listing project details. 
 
 @app.get("/api/project_details",tags=["This api for project details."],description="""This API retrieves all project records from the database, allowing users to view a list of all projects along with their details.
 
@@ -181,6 +180,7 @@ async def get_project_details(db:Session = Depends(get_db)):
     return await crud.get_project_details(db)
 
 
+# This api for updating project details.  
 
 @app.put("/api/project_details/{project_id}",tags=["This api for project details."],description="""
     This API updates an existing project's details, including the project name, description, start date, end date, and status.
@@ -202,6 +202,7 @@ async def update_project_details(project_id: int, project: schemas.ProjectUpdate
     return await crud.update_project_details(db, project_id, project)
 
 
+# This api for deleting project details.
 
 @app.delete("/api/project_details/{delete_details}",tags=["This api for project details."],description="""
     This API deletes a specific project record from the database.
@@ -216,6 +217,8 @@ async def delete_project_details(delete_details: int, db: Session = Depends(get_
     return await crud.delete_project_details(db, delete_details)
 
 
+# Api for product and stock details
+# This api for creating project details. 
 
 @app.post("/api/product_details",tags=["This api for product details."],description= """
     This API allows users to create a new product by providing essential details such as the product name, description, and price.
@@ -234,23 +237,7 @@ async def create_product_details(product: schemas.ProductCreate, db: Session = D
     return await crud.create_product_details(db,product)
 
 
-
-@app.post("/api/stock_details",tags=["This api for stock details."],description="""
-    This API allows users to create a new stock entry for a product by providing the product name and the quantity of stock available.
-
-    **Parameters:**
-    - **stock (StockCreate):** A Pydantic model containing:
-        - `product_name`: The name of the product.
-        - `stock_quantity`: The quantity of stock available.
-
-    **Returns:**
-    - **200 OK:** If the stock details are successfully created.
-    - **400 Bad Request:** If required details are missing.
-    - **404 Not Found:** If the product name does not exist in the product details table.""")
-async def create_stock_details(product: schemas.StockCreate, db: Session = Depends(get_db)):
-    return await crud.create_stock_details(db,product)
-
-
+# This api for listing product details. 
 
 @app.get("/api/product_details",tags=["This api for product details."],description= """
 
@@ -262,18 +249,7 @@ async def create_stock_details(product: schemas.StockCreate, db: Session = Depen
 async def get_product_details(db:Session = Depends(get_db)):
     return await crud.get_product_details(db)
 
-
-
-@app.get("/api/stock_details",tags=["This api for stock details."],description="""
-
-    This API retrieves all stock records from the database, allowing users to view the current stock quantities for all products.
-
-    **Returns:**
-    - **200 OK:** A list of stock details.""")
-async def get_stock_details(db:Session = Depends(get_db)):
-    return await crud.get_stock_details(db)
-
-
+# This api for updating product details.
 
 @app.put("/api/product_details/{product_id}",tags=["This api for product details."],description="""
 
@@ -293,6 +269,52 @@ async def update_product_details(product_id: int, product: schemas.ProductUpdate
     return await crud.update_product_details(db, product_id, product)
 
 
+# This api for deleting product details.
+
+@app.delete("/api/product_details/{delete_details}",tags=["This api for product details."],description="""
+
+    This API deletes a specific product record from the database.
+
+    **Parameters:**
+    - **product_id (int):** The ID of the product to delete.
+
+    **Returns:**
+    - **200 OK:** If the product is successfully deleted.
+    """)
+async def delete_product_details(delete_details: int, db: Session = Depends(get_db)):
+    return await crud.delete_product_details(db, delete_details)
+
+# This api for creating stock details. 
+
+@app.post("/api/stock_details",tags=["This api for stock details."],description="""
+    This API allows users to create a new stock entry for a product by providing the product name and the quantity of stock available.
+
+    **Parameters:**
+    - **stock (StockCreate):** A Pydantic model containing:
+        - `product_name`: The name of the product.
+        - `stock_quantity`: The quantity of stock available.
+
+    **Returns:**
+    - **200 OK:** If the stock details are successfully created.
+    - **400 Bad Request:** If required details are missing.
+    - **404 Not Found:** If the product name does not exist in the product details table.""")
+async def create_stock_details(product: schemas.StockCreate, db: Session = Depends(get_db)):
+    return await crud.create_stock_details(db,product)
+
+
+# This api for listing stock details. 
+
+@app.get("/api/stock_details",tags=["This api for stock details."],description="""
+
+    This API retrieves all stock records from the database, allowing users to view the current stock quantities for all products.
+
+    **Returns:**
+    - **200 OK:** A list of stock details.""")
+async def get_stock_details(db:Session = Depends(get_db)):
+    return await crud.get_stock_details(db)
+
+
+# This api for updating stock details.
 
 @app.put("/api/stock_details/{stock_id}",tags=["This api for stock details."],description="""
          
@@ -313,21 +335,7 @@ async def update_stock_details(stock_id: int, stock: schemas.StockUpdate, db: Se
     return await crud.update_stock_details(db, stock_id, stock)
 
 
-
-@app.delete("/api/product_details/{delete_details}",tags=["This api for product details."],description="""
-
-    This API deletes a specific product record from the database.
-
-    **Parameters:**
-    - **product_id (int):** The ID of the product to delete.
-
-    **Returns:**
-    - **200 OK:** If the product is successfully deleted.
-    """)
-async def delete_product_details(delete_details: int, db: Session = Depends(get_db)):
-    return await crud.delete_product_details(db, delete_details)
-
-
+# This api for deleting stock details.
 
 @app.delete("/api/stock_details/{delete_details}",tags=["This api for stock details."],description="""
 
@@ -341,49 +349,26 @@ async def delete_product_details(delete_details: int, db: Session = Depends(get_
 async def delete_stock_details(delete_details: int, db: Session = Depends(get_db)):
     return await crud.delete_stock_details(db, delete_details)
 
-load_dotenv()
+# Login Api for User.
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta 
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-
-@app.post("/api/user_login", response_model=schemas.Token,tags=["Login Api for User."], description="""
-
-    This API allows users to log in by providing their username and password. If the provided credentials are valid, an access token is generated that can be used to authenticate future requests.
+@app.post("/api/user_login",tags=["Login Api For Buyer, Supplier And User."],description="""
+    This endpoint allows a user to log in by providing a valid username and password. Upon successful login, the user will receive a JWT token, which can be used to authenticate further API requests.
 
     **Parameters:**
-    - **form_data (OAuth2PasswordRequestForm):** The credentials for logging in:
-        - `username`: The username of the user.
-        - `password`: The password of the user.
-    -**db (Session):** The database session to use for querying the user.
+    - `db (Session)`: A database session used to query the supplier's details.
+    - `username`: The name of the user. This is a required field.
+    - `password`: The password associated with the user's account. This is a required field.
 
-    **Returns:**
-    - **200 OK:** If the login is successful, returns an access token.
-        - `access_token`: The generated token that can be used for authentication in subsequent requests.
-        - `token_type`: The type of token (usually "bearer").
-        
-    - **401 Unauthorized:** If the username or password is incorrect, raises an HTTP exception with a message indicating the failure.""")
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = crud.get_user_by_username(db=db, username=form_data.username, password=form_data.password)
+    **Process:**
+    - The API verifies that both `username` and `password` are provided. If either field is missing, it returns an HTTP 400 error with a message indicating that the required details need to be filled.
+    - The API then checks the provided credentials against the `electrictree_db.user_details` database table.
+    - If a matching record is found, a JWT token is generated using the `user_id` and returned to the user.
+    - If no matching record is found, the API returns an HTTP 401 error indicating that the user name or password is invalid.
 
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
-   
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user['username']}, expires_delta=access_token_expires)
-    return {"access_token": access_token, "token_type": "bearer"}
-
-
+    **Response:**
+    - On success: Returns a message indicating successful login, the JWT token, and user details such as `user_id`, `username`, `password`, and `email`.
+    - On failure: Returns an error indicating invalid login credentials.
+    
+    """)
+async def user_login(user: schemas.UserLogin, db: Session = Depends(get_db)):
+    return await crud.user_login(db, user)
