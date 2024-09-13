@@ -3,7 +3,7 @@ import mysql.connector
 def get_db():
     try:
         db = mysql.connector.connect(
-        host="192.168.1.3",
+        host="192.168.1.2",
         user="root",
         password="admin",
         database="electrictree_db"

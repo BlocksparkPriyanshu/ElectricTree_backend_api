@@ -92,4 +92,16 @@ class ProductUpdate(BaseModel):
 class StockUpdate(BaseModel):
     stock_quantity : int
     product_name : str
+
+
+class Status(BaseModel):
+    status : bool
+    status_code : int
+    message : str
+    result: dict = None
+
+class Status1(BaseModel):
+    status : bool
+    status_code : int
+    message : str
     
