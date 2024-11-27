@@ -1,15 +1,16 @@
-import mysql.connector
+import psycopg2
 
 def get_db():
     try:
-        db = mysql.connector.connect(
-        host="192.168.1.2",
-        user="root",
-        password="admin",
-        database="electrictree_db"
+        db = psycopg2.connect(
+        host="192.168.31.194",
+        database="Electrictree",  
+        user="postgres",        
+        password="root",
+        port="5432" 
     )
         print("Connected to MySQL database")
         return db
-    except mysql.connector.Error as err:
+    except psycopg2.connect.Error as err:
         print(f"Error connecting to MySQL: {err}")
         exit()

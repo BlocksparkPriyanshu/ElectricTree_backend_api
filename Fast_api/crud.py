@@ -68,7 +68,7 @@ async def buyer_login(db: Session, buyer: schemas.BuyerLogin):
         return Status(status=False, status_code=400, message="Please fill in the required details")
 
     cursor = db.cursor()
-    query = """SELECT * FROM electrictree_db.buyer_details WHERE buyer_name = %s and buyer_password = %s """
+    query = """SELECT * FROM buyer_details WHERE buyer_name = %s and buyer_password = %s """
     cursor.execute(query, (buyer_name, buyer_password))
     buyer = cursor.fetchone()
 
@@ -99,7 +99,7 @@ async def supplier_login(db: Session, supplier: schemas.SupplierLogin):
         return Status(status=False, status_code=400, message="Please fill in the required details")
 
     cursor = db.cursor()
-    query = """SELECT * FROM electrictree_db.supplier_details WHERE supplier_name = %s and supplier_password = %s """
+    query = """SELECT * FROM supplier_details WHERE supplier_name = %s and supplier_password = %s """
     cursor.execute(query, (supplier_name, supplier_password))
     supplier = cursor.fetchone()
 
@@ -131,7 +131,7 @@ async def user_login(db: Session, user: schemas.UserLogin):
         return Status(status=False, status_code=400, message="Please fill in the required details")
 
     cursor = db.cursor()
-    query = """SELECT * FROM electrictree_db.user_details WHERE username = %s and password = %s """
+    query = """SELECT * FROM user_details WHERE username = %s and password = %s """
     cursor.execute(query, (username, password))
     user = cursor.fetchone()
 
@@ -154,7 +154,7 @@ async def user_login(db: Session, user: schemas.UserLogin):
 
 
 # module to send verification links on User registered email and validate the token and Integrate Firebase email verification module to send verification email
-cred = credentials.Certificate("/home/ubuntu/ElectricTree_Api/config/firebase_credentials.json")
+cred = credentials.Certificate("/home/ubuntu/ElectricTree_backend_api/Fast_api/config/firebase_credentials.json")
 initialize_app(cred)
 
 class FirebaseEmailVerification:
@@ -311,7 +311,7 @@ async def create_project_details(db: Session, project: schemas.ProjectCreate):
         return Status1(status=False, status_code=400, message="Please fill in the required details")
 
     cursor = db.cursor()
-    query = """INSERT INTO electrictree_db.project_details (project_name, project_description, start_date, end_date, status) VALUES (%s,%s,%s,%s,%s)"""
+    query = """INSERT INTO project_details (project_name, project_description, start_date, end_date, status) VALUES (%s,%s,%s,%s,%s)"""
     try:
         cursor.execute(query, (project_name, project_description, start_date, end_date, status))
         db.commit()
@@ -324,7 +324,7 @@ async def create_project_details(db: Session, project: schemas.ProjectCreate):
 # Get Project Details API
 async def get_project_details(db: Session):
     cursor = db.cursor()
-    query = """SELECT * FROM electrictree_db.project_details"""
+    query = """SELECT * FROM project_details"""
     
     try:
         cursor.execute(query)
@@ -365,7 +365,7 @@ async def update_project_details(db: Session, project_id: int, project: schemas.
     status = project.status
 
     cursor = db.cursor()
-    check_query = """SELECT * FROM electrictree_db.project_details WHERE project_id = %s"""
+    check_query = """SELECT * FROM project_details WHERE project_id = %s"""
     cursor.execute(check_query, (project_id,))
     existing_project = cursor.fetchone()
 
@@ -386,7 +386,7 @@ async def update_project_details(db: Session, project_id: int, project: schemas.
 # Delete Project Details API
 async def delete_project_details(db: Session, project_id: int):
     cursor = db.cursor()
-    check_query = """SELECT * FROM electrictree_db.project_details WHERE project_id = %s"""
+    check_query = """SELECT * FROM project_details WHERE project_id = %s"""
     cursor.execute(check_query, (project_id,))
     existing_project = cursor.fetchone()
 
@@ -417,7 +417,7 @@ async def create_product_details(db:Session, product:schemas.ProductCreate):
     
     try:
         cursor = db.cursor()
-        query = """INSERT INTO electrictree_db.product_details (product_name, description, price) VALUES (%s,%s,%s)"""
+        query = """INSERT INTO product_details (product_name, description, price) VALUES (%s,%s,%s)"""
         cursor.execute(query, (product_name, description, price))
         db.commit()
         return Status1(status=True, status_code=200, message="Product details added successfully")
@@ -436,7 +436,7 @@ async def create_stock_details(db: Session, stock: schemas.StockCreate):
     
     try:
         cursor = db.cursor()
-        fetch_query = """SELECT product_id FROM electrictree_db.product_details WHERE product_name = %s"""
+        fetch_query = """SELECT product_id FROM product_details WHERE product_name = %s"""
         cursor.execute(fetch_query, (product_name,))
         result = cursor.fetchone()
 
@@ -445,7 +445,7 @@ async def create_stock_details(db: Session, stock: schemas.StockCreate):
 
         product_id = result[0]
 
-        insert_query = """INSERT INTO electrictree_db.stock_details (product_id, stock_quantity, product_name) VALUES (%s, %s, %s)"""
+        insert_query = """INSERT INTO stock_details (product_id, stock_quantity, product_name) VALUES (%s, %s, %s)"""
         cursor.execute(insert_query, (product_id, stock_quantity, product_name))
         db.commit()
         return Status1(status=True, status_code=200, message="Stock details added successfully")
@@ -458,7 +458,7 @@ async def create_stock_details(db: Session, stock: schemas.StockCreate):
 async def get_product_details(db:Session):
     try:
         cursor = db.cursor()
-        query = """SELECT * FROM electrictree_db.product_details"""
+        query = """SELECT * FROM product_details"""
         cursor.execute(query)
         key = [col[0] for col in cursor.description]
 
@@ -485,7 +485,7 @@ async def get_product_details(db:Session):
 async def get_stock_details(db:Session):
     try:
         cursor = db.cursor()
-        query = """SELECT * FROM electrictree_db.stock_details"""
+        query = """SELECT * FROM stock_details"""
         cursor.execute(query)
         key = [col[0] for col in cursor.description]
 
@@ -514,7 +514,7 @@ async def update_product_details(db: Session, product_id: int, product: schemas.
 
     try:
         cursor = db.cursor()
-        query = """UPDATE electrictree_db.product_details SET product_name = %s, description = %s, price = %s WHERE product_id = %s"""
+        query = """UPDATE product_details SET product_name = %s, description = %s, price = %s WHERE product_id = %s"""
         cursor.execute(query, (product_name, description, price, product_id))
         db.commit()
 
@@ -535,7 +535,7 @@ async def update_stock_details(db: Session, stock_id: int, stock: schemas.StockU
     cursor = db.cursor()
     
     try:
-        fetch_query = """SELECT product_id FROM electrictree_db.product_details WHERE product_name = %s"""
+        fetch_query = """SELECT product_id FROM product_details WHERE product_name = %s"""
         cursor.execute(fetch_query, (product_name,))
         result = cursor.fetchone()
 
@@ -544,7 +544,7 @@ async def update_stock_details(db: Session, stock_id: int, stock: schemas.StockU
         
         product_id = result[0]
 
-        update_query = """UPDATE electrictree_db.stock_details SET product_name = %s, stock_quantity = %s, product_id = %s WHERE stock_id = %s"""
+        update_query = """UPDATE stock_details SET product_name = %s, stock_quantity = %s, product_id = %s WHERE stock_id = %s"""
         cursor.execute(update_query, (product_name, stock_quantity, product_id, stock_id))
         db.commit()
         
@@ -558,7 +558,7 @@ async def update_stock_details(db: Session, stock_id: int, stock: schemas.StockU
 async def delete_product_details(db: Session, product_id: int):
     try:
         cursor = db.cursor()
-        query = """DELETE FROM electrictree_db.product_details WHERE product_id = %s"""
+        query = """DELETE FROM product_details WHERE product_id = %s"""
         cursor.execute(query, (product_id,))
         db.commit()
 
@@ -571,7 +571,7 @@ async def delete_product_details(db: Session, product_id: int):
 async def delete_stock_details(db: Session, stock_id: int):
     try:
         cursor = db.cursor()
-        query = """DELETE FROM electrictree_db.stock_details WHERE stock_id = %s"""
+        query = """DELETE FROM stock_details WHERE stock_id = %s"""
         cursor.execute(query, (stock_id,))
         db.commit()
 

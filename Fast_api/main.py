@@ -9,28 +9,19 @@ from schemas import Buyer, Supplier
 from fastapi import FastAPI, HTTPException, Depends
 import schemas
 from crud import buyer_signup, supplier_signup, verify_email
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or specify specific origins like ["http://localhost:3000"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# @app.post("/api/buyer_signup", status_code=status.HTTP_201_CREATED)
-# def buyer_signup(buyer: BuyerCreate, db: MySQLConnection = Depends(get_db)):
-#     existing_buyer = get_buyer_by_email(db, buyer.contact_email)
-#     if existing_buyer:
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
-    
-#     create_buyer(db, buyer)
-#     return JSONResponse(content={"message": "Buyer SignUp Successfully"})
-
-# @app.post("/api/supplier_signup", status_code=status.HTTP_201_CREATED)
-# def supplier_signup(supplier: SupplierCreate, db: MySQLConnection = Depends(get_db)):
-#     existing_supplier = get_supplier_by_email(db, supplier.contact_email)
-#     if existing_supplier:
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
-    
-#     create_supplier(db, supplier)
-#     return JSONResponse(content={"message": "Supplier SignUp Successfully"})
 
 
 # Login api for Buyer.
